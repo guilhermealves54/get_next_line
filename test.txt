@@ -1,0 +1,3 @@
+isto é um teste.
+a escola chama-se 42
+o exercício é o get_next_line...
