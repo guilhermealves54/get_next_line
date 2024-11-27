@@ -1,31 +1,32 @@
 #include "get_next_line.h"
 
-char	*read_buffer (fd, char *nextl);
+char	*read_buffer (int fd, char *nextl)
 {
 	char	*buffer;
-	int		i;
+	char	*temp;
 	size_t	b_read;
 
 	buffer = malloc ((BUFFER_SIZE + 1) * sizeof(char));
 	if (buffer == NULL)
 		return (NULL);
-	i = 0;
 	b_read = 1;
 	while (b_read > 0)
 	{
 		b_read = read (fd, buffer, BUFFER_SIZE);
 		if (b_read < 0)
 		{
-			free (buffer);
-			return (NULL);
+			return (free (buffer), NULL);
 		}
 		buffer[b_read] = '\0';
-		nextl = ft_strjoin(nextl, buffer);
+		temp = nextl;
+		nextl = ft_strjoin(temp, buffer);
+		free (temp);
 		if (ft_strchr(nextl, '\n'))
 			break ;
 	}
-	free (buffer);
-	return (nextl);
+	if (b_read == 0 && !*nextl)
+		return (free(nextl), NULL);
+	return (free (buffer), nextl);
 }
 
 char	*get_line(char *nextl)
@@ -34,9 +35,9 @@ char	*get_line(char *nextl)
 	char	*line;
 
 	i = 0;
-	while (nextl[i] != '\n')
+	while (nextl[i] != '\0' && nextl[i] != '\n')
 		i++;
-	line = malloc ((i + 1) * sizeof(char));
+	line = malloc ((i + 2) * sizeof(char));
 	if (!line)
 		return (NULL);
 	i = 0;
@@ -45,29 +46,36 @@ char	*get_line(char *nextl)
 		line[i] = nextl[i];
 		i++;
 	}
-	line[i] = '\0'
+	line[i] = '\0';
 	return (line);
 }
 
-/* char	*remainig_str (char *nextl)
+char	*remaining_str (char *nextl)
 {
 	int		i;
 	int		n;
+	char	*remain;
 
 	i = 0;
-	while (nextl[i] != '\n')
+	while (nextl[i] != '\0' && nextl[i] != '\n')
 		i++;
-	nextl[i] = '\0';
-	n = i - 1;
-	i = strlen(nextl);
+	if (nextl[i] == '\0')
+		return (free (nextl), NULL);
+	n = ft_strlen(nextl) - i;
+	remain = malloc (sizeof(char) * (n + 1));
+	if (!remain)
+		return (NULL);
+	remain[n] = '\0';
+	n -= 1;
 	while (n >= 0)
 	{
-		nextl[n] = nextl[i];
-		i--;
+		remain[n] = nextl[i];
 		n--;
+		i--;
 	}
-	return (nextl);
-} */
+	free (nextl);
+	return (remain);
+}
 
 char	*get_next_line(int fd)
 {
@@ -93,7 +101,7 @@ int		main(void)
 	char	*line;
 
 	i = 1;
-	fd = open ("test.txt", O_RDONLY);
+	fd = open ("test", O_RDONLY);
 	while (i < 3)
 	{
 		line = get_next_line (fd);
