@@ -1,5 +1,25 @@
 #include "get_next_line.h"
 
+char	*ft_strdup(const char *s1)
+{
+	char	*tmp_str;
+	size_t	i;
+
+	i = 0;
+	tmp_str = (char *) malloc ((ft_strlen (s1) + 1) * sizeof(char));
+	if (tmp_str == NULL)
+	{
+		return (NULL);
+	}
+	while (s1[i] != '\0')
+	{
+		tmp_str[i] = s1[i];
+		i++;
+	}
+	tmp_str[i] = '\0';
+	return (tmp_str);
+}
+
 size_t	ft_strlen(const char *str)
 {
 	int	i;

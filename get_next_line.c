@@ -1,113 +1,80 @@
 #include "get_next_line.h"
 
-char	*read_buffer (int fd, char *nextl)
+static char	*read_buff (int fd, char *nextl, char *buff)
 {
-	char	*buffer;
 	char	*temp;
 	size_t	b_read;
 
-	buffer = malloc ((BUFFER_SIZE + 1) * sizeof(char));
-	if (buffer == NULL)
-		return (NULL);
 	b_read = 1;
-	while (b_read > 0)
+	while (b_read)
 	{
-		b_read = read (fd, buffer, BUFFER_SIZE);
-		if (b_read < 0)
-		{
-			return (free (buffer), NULL);
-		}
-		buffer[b_read] = '\0';
+		b_read = read (fd, buff, BUFFER_SIZE);
+		if (b_read <= 0)
+			break ;
+		buff[b_read] = '\0';
+		if (!nextl)
+			nextl = ft_strdup("");
 		temp = nextl;
-		nextl = ft_strjoin(temp, buffer);
+		nextl = ft_strjoin(temp, buff);
+		if (!nextl)
+			return (NULL);
 		free (temp);
+		temp = NULL;
 		if (ft_strchr(nextl, '\n'))
 			break ;
 	}
-	if (b_read == 0 && !*nextl)
-		return (free(nextl), NULL);
-	return (free (buffer), nextl);
+	free(buff);
+	return (nextl);
 }
 
-char	*get_line(char *nextl)
+static char	*remain_str (char *line)
 {
+	char	*nextl;
 	int		i;
-	char	*line;
-
-	i = 0;
-	while (nextl[i] != '\0' && nextl[i] != '\n')
+	
+	i = 0;	
+	while (line[i] != '\n' && line[i])
 		i++;
-	line = malloc ((i + 2) * sizeof(char));
-	if (!line)
+	if (line[i] == '\0' || line[i + 1] == '\0')
 		return (NULL);
-	i = 0;
-	while (nextl[i] != '\n')
-	{
-		line[i] = nextl[i];
-		i++;
-	}
-	line[i] = '\0';
-	return (line);
-}
-
-char	*remaining_str (char *nextl)
-{
-	int		i;
-	int		n;
-	char	*remain;
-
-	i = 0;
-	while (nextl[i] != '\0' && nextl[i] != '\n')
-		i++;
-	if (nextl[i] == '\0')
-		return (free (nextl), NULL);
-	n = ft_strlen(nextl) - i;
-	remain = malloc (sizeof(char) * (n + 1));
-	if (!remain)
-		return (NULL);
-	remain[n] = '\0';
-	n -= 1;
-	while (n >= 0)
-	{
-		remain[n] = nextl[i];
-		n--;
-		i--;
-	}
-	free (nextl);
-	return (remain);
+	nextl = ft_strdup(&line[i + 1]);
+	line[i + 1] = '\0';
+	return (nextl);
 }
 
 char	*get_next_line(int fd)
 {
 	char		*line;
 	static char	*nextl;
+	char		*buff;
 
 	if (fd < 0 || BUFFER_SIZE <= 0)
 		return (NULL);
-	nextl = read_buffer (fd, nextl);
-	if (!nextl)
+	buff = malloc ((BUFFER_SIZE + 1) * sizeof(char));
+	if (!buff)
 		return (NULL);
-	line = get_line (nextl);
-	nextl = remaining_str (nextl);
+	line = read_buff (fd, nextl, buff);
+	if (!line)
+		return (NULL);	
+	nextl = remain_str (line);
 	return (line);
 }
 
-#include<stdio.h>
+/* #include<stdio.h>
 #include<fcntl.h>
 int		main(void)
 {
-	int		fd;
-	int		i;
+	int		fd;	
 	char	*line;
 
-	i = 1;
 	fd = open ("test", O_RDONLY);
-	while (i < 3)
+	while (line)
 	{
 		line = get_next_line (fd);
+		if (!line)
+			break;
 		printf ("%s", line);
 		free (line);
-		i++;
 	}
 	close (fd);
-}
+} */
