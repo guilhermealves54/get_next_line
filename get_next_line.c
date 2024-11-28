@@ -3,7 +3,7 @@
 static char	*read_buff (int fd, char *nextl, char *buff)
 {
 	char	*temp;
-	size_t	b_read;
+	ssize_t	b_read;
 
 	b_read = 1;
 	while (b_read)
@@ -15,12 +15,12 @@ static char	*read_buff (int fd, char *nextl, char *buff)
 		if (!nextl)
 			nextl = ft_strdup("");
 		temp = nextl;
-		nextl = ft_strjoin(temp, buff);
+		nextl = ft_strjoin(nextl, buff);
 		if (!nextl)
 			return (NULL);
 		free (temp);
 		temp = NULL;
-		if (ft_strchr(nextl, '\n'))
+		if (ft_strchr(buff, '\n'))
 			break ;
 	}
 	free(buff);
@@ -55,7 +55,7 @@ char	*get_next_line(int fd)
 		return (NULL);
 	line = read_buff (fd, nextl, buff);
 	if (!line)
-		return (NULL);	
+		return (NULL);
 	nextl = remain_str (line);
 	return (line);
 }
@@ -67,7 +67,7 @@ int		main(void)
 	int		fd;	
 	char	*line;
 
-	fd = open ("test", O_RDONLY);
+	fd = 1;
 	while (line)
 	{
 		line = get_next_line (fd);
